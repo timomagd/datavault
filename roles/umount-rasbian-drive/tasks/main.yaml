@@ -1,0 +1,12 @@
+- name: 'Unmounting root partition of Rasbian'
+  ansible.posix.mount:
+    boot: false
+    state: unmounted
+    fstype: ext4
+    path: ./rasbian-cfg/root
+    src: '{{ rasbian_root }}'
+
+- name: 'Removing root dir from rasbian-cfg'
+  ansible.builtin.file:
+    path: ./rasbian-cfg/root
+    state: absent

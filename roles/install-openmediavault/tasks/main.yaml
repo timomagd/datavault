@@ -1,0 +1,52 @@
+- name: 'Downloading OMV keyring'
+  ansible.builtin.get_url:
+    url: 'https://packages.openmediavault.org/public/archive.key'
+    dest: '{{ OMV_keyring }}'
+
+- name: 'gpg --dearmor'
+  ansible.builtin.shell:
+    cmd: 'gpg --dearmor {{ OMV_keyring }}archive.key'
+
+- name: 'Adding keyfile to keyring'
+  ansible.builtin.apt_key:
+    file: '{{ OMV_keyring }}archive.key.gpg'
+    keyring: /etc/apt/trusted.gpg.d/openmediavault-archive-keyring.gpg
+    state: present
+
+- name: 'Add OMV repository'
+  ansible.builtin.blockinfile:
+    path: /etc/apt/sources.list.d/openmediavault.list
+    create: true
+    block: |
+      deb https://packages.openmediavault.org/public shaitan main
+      # deb https://downloads.sourceforge.net/project/openmediavault/packages shaitan main
+      ## Uncomment the following line to add software from the proposed repository.
+      # deb https://packages.openmediavault.org/public shaitan-proposed main
+      # deb https://downloads.sourceforge.net/project/openmediavault/packages shaitan-proposed main
+      ## This software is not part of OpenMediaVault, but is offered by third-party
+      ## developers as a service to OpenMediaVault users.
+      # deb https://packages.openmediavault.org/public shaitan partner
+      # deb https://downloads.sourceforge.net/project/openmediavault/packages shaitan partner
+
+
+- name: 'Setting env vars'
+  ansible.builtin.shell:
+    cmd: |
+      export LANG=C.UTF-8
+      export DEBIAN_FRONTEND=noninteractive
+      export APT_LISTCHANGES_FRONTEND=none
+
+- name: 'Installing OpenMediaVault'
+  ansible.builtin.apt:
+    update_cache: true
+    autoremove: true
+    allow_downgrades: true
+    allow_change_held_packages: true
+    install_recommends: false
+    name:
+      - openmediavault-keyring
+      - openmediavault
+
+- name: 'omv-confdbadm populate'
+  ansible.builtin.shell:
+    cmd: omv-confdbadm populate

@@ -1,0 +1,12 @@
+- name: 'Downloading OMV install script'
+  ansible.builtin.get_url:
+    url: 'https://github.com/OpenMediaVault-Plugin-Developers/installScript/raw/master/install'
+    dest: /root/
+
+- name: 'Installing OMV...  (this will take a while)' # ssh -n root@<ip-address> -i ./rasbian-cfg/ssh/ssh-key 'tail -f omv_install.log' &
+  ansible.builtin.shell: bash install
+  register: script_output
+
+# Uncomment to display omv install logs
+#- debug:
+#    var: script_output.stdout_lines

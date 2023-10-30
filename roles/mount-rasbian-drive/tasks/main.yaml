@@ -1,0 +1,12 @@
+- name: 'Creating root directory'
+  ansible.builtin.file:
+    path: ./rasbian-cfg/root
+    state: directory
+
+- name: 'Mounting root partition of Rasbian'
+  ansible.posix.mount:
+    boot: false
+    state: ephemeral
+    fstype: ext4
+    path: ./rasbian-cfg/root
+    src: '{{ rasbian_root }}'
