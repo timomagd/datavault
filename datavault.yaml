@@ -1,0 +1,60 @@
+---
+version: "3.0"
+services:
+# NGINX Proxy Manager container
+  nginx-proxy-manager:
+    image: jc21/nginx-proxy-manager:latest
+    container_name: nginx-proxy-manager
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '81:81'
+      - '443:443'
+    volumes:
+      - ./nginx/data:/data
+      - ./nginx/letsencrypt:etc/letsencrypt
+# Dashy container
+  dashy:
+    image: lissy93/dashy
+    container_name: dashy
+    restart: unless-stopped
+    volumes:
+      - ./dashy/config.yml:/app/public/conf.yml
+    environment:
+      - NODE_ENV=production
+      - UID=${PUID}
+      - GID=${PGID}
+    healthcheck:
+      test: ['CMD', 'node', '/app/services/healthcheck']
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+# NextCloud container.
+  nextcloud:
+    image: lscr.io/linuxserver/nextcloud:latest # Download image from lscr.io
+    container_name: nextcloud # Give name to container
+    restart: unless-stopped # Container restart condition
+    environment:  # Environment variables to set
+      - PUID=${PUID}  # User UID running the container
+      - PGID=${PGID}  # User GID running the container
+      - TZ=${TZ}      # Time Zone
+    ports: # Port to open to access the container
+      - '443:443'
+    volumes:  # Volumes set to be used by the container
+      - ./config:/config # Volume containing the config files
+
+# Jellyfin container
+  jellyfin:
+    image: lscr.io.linuxserver/jellyfin:latest  # Download image from lscr.io
+    container_name: jellyfin # Give name to container
+    restart: unless-stopped # Container restart condition
+    environment: # Environment variables to set
+      - PUID=${PUID}  # User UID running the container
+      - PGID=${PGID}  # User GID running the container
+      - TZ=${TZ}      # Time Zone
+    volumes:  # Volumes set to be used by the container
+      - ./config:/config         # Volume containing the config files
+      - ${series}:/data/tvshows  # Volume containing the series
+      - ${movies}:/data/movies   # Volume containig the movies
