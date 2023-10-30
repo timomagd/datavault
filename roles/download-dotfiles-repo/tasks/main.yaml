@@ -1,4 +1,0 @@
-- name: 'Downloading dotfiles repo'
-  ansible.builtin.git:
-    repo: '{{ dotfiles_repo }}'
-    dest: '{{ dotfiles_repo_dir }}'
