@@ -1,0 +1,10 @@
+---
+- hosts: localhost
+  gather_facts: no
+  vars_files: vars-file.yaml
+  roles:
+    - mount-rasbian-drive
+    - create-ssh-keys
+    - configure-static-ip
+    - umount-rasbian-drive
+    - create-ansible-hosts
