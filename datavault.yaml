@@ -58,3 +58,7 @@ services:
       - ./config:/config         # Volume containing the config files
       - ${series}:/data/tvshows  # Volume containing the series
       - ${movies}:/data/movies   # Volume containig the movies
+networks:
+  default:
+    external: true
+    name: datavault-net
